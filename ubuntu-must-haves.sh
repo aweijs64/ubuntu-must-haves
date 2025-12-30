@@ -154,7 +154,7 @@ if [ -z "$to_install" ]; then
 fi
 
 print_info "Note: VS Code and Spotify use snap with 'classic' confinement,"
-print_info "which gives them broader system access than regular snaps."
+echo "    which gives them broader system access than regular snaps."
 echo ""
 
 read -p "Do you want to continue? (y/n): " continue_install
