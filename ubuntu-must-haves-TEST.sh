@@ -71,12 +71,6 @@ print_dry_run() {
     echo -e "${MAGENTA}[DRY-RUN]${NC} $1"
 }
 
-# Check if running as root
-if [ "$EUID" -eq 0 ]; then 
-    print_error "Please do not run this script as root or with sudo"
-    exit 1
-fi
-
 # Track which apps were successfully installed
 chrome_installed=false
 libreoffice_installed=false
@@ -92,6 +86,11 @@ vscode_skipped=false
 vlc_skipped=false
 remmina_skipped=false
 spotify_skipped=false
+
+# Track which apps were skipped by user choice
+chrome_declined=false
+vscode_declined=false
+spotify_declined=false
 
 # Simulated command checks (instead of real command_exists)
 command_exists() {
@@ -258,10 +257,6 @@ if [ -z "$to_install" ]; then
     exit 0
 fi
 
-print_info "Note: VS Code and Spotify use snap with 'classic' confinement,"
-echo "    which gives them broader system access than regular snaps."
-echo ""
-
 read -p "Do you want to continue? (y/n): " continue_install
 if [[ ! "$continue_install" =~ ^[Yy]$ ]]; then
     print_info "Installation cancelled."
@@ -275,6 +270,15 @@ if [ "$chrome_present" = false ]; then
     print_info "Google Chrome installation requires adding third-party repositories (extrepo)."
     read -p "Do you want to install Google Chrome? (y/n): " install_chrome
 fi
+
+# Ask user about snap-based applications only if not already installed
+install_snaps="n"
+if [ "$vscode_present" = false ] || [ "$spotify_present" = false ]; then
+    echo ""
+    print_info "VS Code and Spotify are installed via snap with 'classic' confinement,"
+    echo "    which gives them broader system access than regular snaps."
+    read -p "Do you want to install snap-based applications? (y/n): " install_snaps
+fi
 echo ""
 
 # Update package lists
@@ -285,7 +289,10 @@ print_status "Package lists updated"
 
 # Check if snapd is available (needed for VS Code and Spotify)
 snapd_available=false
-if [ "$SIM_SNAPD_AVAILABLE" = true ] && [ "$SIM_SNAPD_NEEDS_INSTALL" = false ]; then
+if [[ ! "$install_snaps" =~ ^[Yy]$ ]]; then
+    # User declined snap-based apps, no need to check/install snapd
+    snapd_available=false
+elif [ "$SIM_SNAPD_AVAILABLE" = true ] && [ "$SIM_SNAPD_NEEDS_INSTALL" = false ]; then
     snapd_available=true
 elif [ "$SIM_SNAPD_NEEDS_INSTALL" = true ]; then
     print_info "Snapd not found. Installing snapd..."
@@ -350,6 +357,9 @@ if [[ "$install_chrome" =~ ^[Yy]$ ]]; then
     fi
 else
     print_info "Skipping Google Chrome installation"
+    if [ "$chrome_present" = false ]; then
+        chrome_declined=true
+    fi
 fi
 
 # Install LibreOffice
@@ -374,6 +384,9 @@ if [ "$vscode_present" = true ]; then
     print_info "Visual Studio Code is already installed, skipping"
     vscode_skipped=true
     vscode_installed=true
+elif [[ ! "$install_snaps" =~ ^[Yy]$ ]]; then
+    print_info "Skipping VS Code installation (snap-based apps declined)"
+    vscode_declined=true
 elif [ "$snapd_available" = true ]; then
     print_info "Installing Visual Studio Code..."
     print_dry_run "Would run: sudo snap install code --classic"
@@ -427,6 +440,9 @@ if [ "$spotify_present" = true ]; then
     print_info "Spotify is already installed, skipping"
     spotify_skipped=true
     spotify_installed=true
+elif [[ ! "$install_snaps" =~ ^[Yy]$ ]]; then
+    print_info "Skipping Spotify installation (snap-based apps declined)"
+    spotify_declined=true
 elif [ "$snapd_available" = true ]; then
     print_info "Installing Spotify..."
     print_dry_run "Would run: sudo snap install spotify"
@@ -537,7 +553,7 @@ if [ "$libreoffice_installed" = false ]; then
     failures+="  ✗ LibreOffice\n"
     failed=true
 fi
-if [ "$vscode_installed" = false ] && [ "$snapd_available" = true ]; then
+if [ "$vscode_installed" = false ] && [ "$snapd_available" = true ] && [[ "$install_snaps" =~ ^[Yy]$ ]]; then
     failures+="  ✗ Visual Studio Code\n"
     failed=true
 fi
@@ -549,7 +565,7 @@ if [ "$remmina_installed" = false ]; then
     failures+="  ✗ Remmina\n"
     failed=true
 fi
-if [ "$spotify_installed" = false ] && [ "$snapd_available" = true ]; then
+if [ "$spotify_installed" = false ] && [ "$snapd_available" = true ] && [[ "$install_snaps" =~ ^[Yy]$ ]]; then
     failures+="  ✗ Spotify\n"
     failed=true
 fi
@@ -557,6 +573,27 @@ fi
 if [ "$failed" = true ]; then
     echo "Failed to install:"
     echo -e "$failures"
+fi
+
+# Collect user-declined apps
+declined=""
+user_declined=false
+if [ "$chrome_declined" = true ]; then
+    declined+="  • Google Chrome\n"
+    user_declined=true
+fi
+if [ "$vscode_declined" = true ]; then
+    declined+="  • Visual Studio Code\n"
+    user_declined=true
+fi
+if [ "$spotify_declined" = true ]; then
+    declined+="  • Spotify\n"
+    user_declined=true
+fi
+
+if [ "$user_declined" = true ]; then
+    echo "Skipped by choice:"
+    echo -e "$declined"
 fi
 
 echo "You can launch these applications from your application menu."
