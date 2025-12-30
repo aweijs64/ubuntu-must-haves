@@ -20,7 +20,7 @@ bash ubuntu-must-haves.sh
 
 **What it installs:**
 - **Google Chrome** - Web browser (optional - requires third-party repo)
-  - *Note:* Installing Chrome requires adding Google's repository via **extrepo**, Ubuntu's external repository management tool. Extrepo safely manages third-party software sources by handling GPG keys and repository configurations automatically. The script will prompt you before making any changes.
+  - *Note:* Installing Chrome requires adding Google's repository via **extrepo**, Ubuntu's external repository management tool. Extrepo safely manages third-party software sources by handling GPG keys and repository configurations automatically. The script will prompt you before making any changes. Using the Google repository instead of simply downloading and installing a .deb makes it easier to update Google Chrome in the future.
 - **LibreOffice** - Full office suite (Writer, Calc, Impress, etc.)
 - **Visual Studio Code** - Modern code editor (optional - installed via snap)
 - **VLC Media Player** - Versatile media player
