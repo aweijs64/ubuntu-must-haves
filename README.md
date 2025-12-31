@@ -4,6 +4,13 @@ Quick setup scripts and reference guide for Ubuntu systems.
 
 ## Quick Start
 
+### Pick your own must-haves
+
+Download and open ```install-script-generator.html``` in your browser to pick which apps to install and generate a custom install script. You can then download this script and run it:
+
+```bash '~/YOUR DOWNLOADS FOLDER/ubuntu-install.sh'
+```
+
 ### Install Must-Have Applications
 
 Install essential applications with one command. The script checks what's already installed, then asks about optional components before proceeding:
