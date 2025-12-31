@@ -8,7 +8,8 @@ Quick setup scripts and reference guide for Ubuntu systems.
 
 Download and open ```install-script-generator.html``` in your browser to pick which apps to install and generate a custom install script. You can then download this script and run it:
 
-```bash '~/YOUR DOWNLOADS FOLDER/ubuntu-install.sh'
+```bash
+bash '~/YOUR DOWNLOADS FOLDER/ubuntu-install.sh'
 ```
 
 ### Install Must-Have Applications
