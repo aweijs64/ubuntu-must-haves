@@ -6,7 +6,7 @@ Quick setup scripts and reference guide for Ubuntu systems.
 
 ### Pick your own must-haves
 
-Download and open ```install-script-generator.html``` in your browser to pick which apps to install and generate a custom install script. You can then download this script and run it:
+Download and open ```ubuntu-install-script-generator.html``` in your browser to pick which apps to install and generate a custom install script. You can then download this script and run it:
 
 ```bash
 cd ~/YOUR DOWNLOADS FOLDER
