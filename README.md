@@ -15,7 +15,7 @@ bash 'ubuntu-install.sh'
 
 ### Install Must-Have Applications
 
-Install essential applications with one command. The script checks what's already installed, then asks about optional components before proceeding:
+Install what I think are essential applications with one command. The script checks what's already installed, then asks about optional components before proceeding:
 
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/mattencode/ubuntu-must-haves/main/ubuntu-must-haves.sh)
